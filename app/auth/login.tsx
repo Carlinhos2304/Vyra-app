@@ -10,11 +10,16 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const handleSignIn = () => {
+    // Navigate to the tabs home screen and clear the navigation history stack
+    router.replace('/(tabs)/home');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -26,7 +31,6 @@ export default function LoginScreen() {
           {/* Logo Section */}
           <View style={styles.logoContainer}>
             <View style={styles.iconWrapper}>
-              {/* Fallback pure CSS/Component visual layout for the star icon without external packages */}
               <View style={styles.starIconContainer}>
                 <View style={[styles.starDiamond, styles.starHorizontal]} />
                 <View style={[styles.starDiamond, styles.starVertical]} />
@@ -34,7 +38,7 @@ export default function LoginScreen() {
                 <View style={styles.starPlusVertical} />
               </View>
             </View>
-            <Text style={styles.appName}>Vyra</Text>
+            <Text style={styles.appName}>StyleSync</Text>
             <Text style={styles.subtitle}>Welcome back</Text>
           </View>
 
@@ -64,7 +68,11 @@ export default function LoginScreen() {
               autoCorrect={false}
             />
 
-            <TouchableOpacity style={styles.signInButton} activeOpacity={0.8}>
+            <TouchableOpacity 
+              style={styles.signInButton} 
+              activeOpacity={0.8}
+              onPress={handleSignIn}
+            >
               <Text style={styles.signInButtonText}>Sign In</Text>
             </TouchableOpacity>
           </View>
@@ -77,9 +85,12 @@ export default function LoginScreen() {
           </View>
 
           {/* OAuth Section */}
-          <TouchableOpacity style={styles.googleButton} activeOpacity={0.8}>
+          <TouchableOpacity 
+            style={styles.googleButton} 
+            activeOpacity={0.8}
+            onPress={handleSignIn}
+          >
             <View style={styles.googleContent}>
-              {/* Fallback envelope layout using views to completely eliminate native SVG dependencies */}
               <View style={styles.envelopeIcon}>
                 <View style={styles.envelopeFlap} />
               </View>
