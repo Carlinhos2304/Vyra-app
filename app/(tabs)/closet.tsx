@@ -11,11 +11,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 44) / 2; // Exact calculations for column margins
+const CARD_WIDTH = (width - 44) / 2;
 
-// Realistic mock data extracted directly from the Figma configuration structure
+// 1. Declare the data array constant exactly where the compiler can find it
 const GARMENTS_DATA = [
   {
     id: '1',
@@ -62,24 +63,44 @@ export default function ClosetScreen() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // 2. The type annotation now cleanly resolves using indexing safely
   const renderItem = ({ item }: { item: typeof GARMENTS_DATA[0] }) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.9}
+      onPress={() =>
+        router.push({
+          pathname: 'clothing/[id]',
+          params: {
+            id: item.id,
+            name: item.name,
+            brand: item.brand,
+            category: item.category,
+            image: item.image,
+            color: item.color,
+          },
+        })
+      }
+    >
       <View style={styles.imageWrapper}>
         <Image source={{ uri: item.image }} style={styles.garmentImage} />
         <View style={[styles.colorIndicator, { backgroundColor: item.color }]} />
       </View>
+
       <View style={styles.cardInfo}>
         <Text style={styles.garmentName} numberOfLines={1}>
           {item.name}
         </Text>
+
         <View style={styles.rowMetadata}>
           <Text style={styles.brandText}>{item.brand}</Text>
+
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{item.category}</Text>
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   return (

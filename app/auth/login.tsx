@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
-
+import VyraLogo from '../../components/VyraLogo';
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,13 +32,10 @@ export default function LoginScreen() {
           <View style={styles.logoContainer}>
             <View style={styles.iconWrapper}>
               <View style={styles.starIconContainer}>
-                <View style={[styles.starDiamond, styles.starHorizontal]} />
-                <View style={[styles.starDiamond, styles.starVertical]} />
-                <View style={styles.starPlusHorizontal} />
-                <View style={styles.starPlusVertical} />
+                <VyraLogo size={56} />
               </View>
             </View>
-            <Text style={styles.appName}>StyleSync</Text>
+            <Text style={styles.appName}>Vyra</Text>
             <Text style={styles.subtitle}>Welcome back</Text>
           </View>
 
