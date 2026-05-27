@@ -12,11 +12,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { PremiumScreen } from '../../components/ui/PremiumScreen';
+import { PremiumCard } from '../../components/ui/PremiumCard';
+import { SectionHeader } from '../../components/ui/SectionHeader'; 
+import { SectionTitle } from '../../components/ui/SectionTitle'; // Imported architectural sublabel
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 44) / 2;
 
-// 1. Declare the data array constant exactly where the compiler can find it
 const GARMENTS_DATA = [
   {
     id: '1',
@@ -63,10 +66,8 @@ export default function ClosetScreen() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 2. The type annotation now cleanly resolves using indexing safely
   const renderItem = ({ item }: { item: typeof GARMENTS_DATA[0] }) => (
     <TouchableOpacity
-      style={styles.card}
       activeOpacity={0.9}
       onPress={() =>
         router.push({
@@ -82,30 +83,32 @@ export default function ClosetScreen() {
         })
       }
     >
-      <View style={styles.imageWrapper}>
-        <Image source={{ uri: item.image }} style={styles.garmentImage} />
-        <View style={[styles.colorIndicator, { backgroundColor: item.color }]} />
-      </View>
+      <PremiumCard style={styles.card}>
+        <View style={styles.imageWrapper}>
+          <Image source={{ uri: item.image }} style={styles.garmentImage} />
+          <View style={[styles.colorIndicator, { backgroundColor: item.color }]} />
+        </View>
 
-      <View style={styles.cardInfo}>
-        <Text style={styles.garmentName} numberOfLines={1}>
-          {item.name}
-        </Text>
+        <View style={styles.cardInfo}>
+          {/* Subtle architectural label mapping for brand system alignment */}
+          <SectionTitle withBottomMargin>{item.brand}</SectionTitle>
+          
+          <Text style={styles.garmentName} numberOfLines={1}>
+            {item.name}
+          </Text>
 
-        <View style={styles.rowMetadata}>
-          <Text style={styles.brandText}>{item.brand}</Text>
-
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{item.category}</Text>
+          <View style={styles.rowMetadata}>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{item.category}</Text>
+            </View>
           </View>
         </View>
-      </View>
+      </PremiumCard>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* List Header Components wrapped inside FlatList header props to guarantee scroll synchronization */}
+    <PremiumScreen>
       <FlatList
         data={GARMENTS_DATA}
         renderItem={renderItem}
@@ -116,12 +119,13 @@ export default function ClosetScreen() {
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={styles.headerStack}>
-            {/* Title Block Area */}
+            {/* Title Block Area with Premium Layout System */}
             <View style={styles.titleRow}>
-              <View>
-                <Text style={styles.heading}>My Closet</Text>
-                <Text style={styles.itemsCounter}>{GARMENTS_DATA.length} items</Text>
-              </View>
+              <SectionHeader 
+                title="My Closet" 
+                subtitle={`${GARMENTS_DATA.length} items catalogued`}
+                style={styles.headerFlexOverride}
+              />
               <TouchableOpacity style={styles.actionAddButton} activeOpacity={0.8}>
                 <Feather name="plus" size={22} color="#FAFAF9" />
               </TouchableOpacity>
@@ -183,14 +187,14 @@ export default function ClosetScreen() {
           </View>
         }
       />
-    </SafeAreaView>
+    </PremiumScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAF9', // Matches background token from theme.css
+    backgroundColor: '#FAFAF9',
   },
   listContainer: {
     paddingHorizontal: 16,
@@ -202,27 +206,22 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     paddingVertical: 16,
   },
-  heading: {
-    fontSize: 24,
-    fontWeight: '400', // Matches Light styling from web spec
-    color: '#1C1917',
-    letterSpacing: 0.5,
-  },
-  itemsCounter: {
-    fontSize: 14,
-    color: '#78716C',
-    marginTop: 2,
+  headerFlexOverride: {
+    flex: 1,
+    paddingVertical: 0,
   },
   actionAddButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#1C1917', // Primary token implementation
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#1C1917',
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 16,
+    marginTop: 2, 
     shadowColor: '#1C1917',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
@@ -232,7 +231,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F4', // Secondary background config token
+    backgroundColor: '#F5F5F4',
     borderRadius: 16,
     height: 48,
     paddingHorizontal: 14,
@@ -272,7 +271,7 @@ const styles = StyleSheet.create({
   },
   categoryTabInactive: {
     backgroundColor: 'transparent',
-    borderColor: '#E7E5E4', // Border configuration element
+    borderColor: '#E7E5E4',
   },
   categoryIcon: {
     marginRight: 6,
@@ -298,6 +297,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#F5F5F4',
+    padding: 0,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     width: '100%',
-    height: CARD_WIDTH * 1.28, // Calculated 3:4 aspect-ratio emulation framework
+    height: CARD_WIDTH * 1.28,
     backgroundColor: '#F5F5F4',
     position: 'relative',
   },
@@ -335,18 +335,14 @@ const styles = StyleSheet.create({
   },
   garmentName: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '400',
     color: '#1C1917',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   rowMetadata: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  brandText: {
-    fontSize: 12,
-    color: '#78716C',
   },
   badge: {
     backgroundColor: 'transparent',

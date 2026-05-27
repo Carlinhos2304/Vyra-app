@@ -11,6 +11,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { PremiumScreen } from '../../components/ui/PremiumScreen';
+import { SectionHeader } from '../../components/ui/SectionHeader';
+import { SectionTitle } from '../../components/ui/SectionTitle';
 
 const { width } = Dimensions.get('window');
 
@@ -52,12 +55,15 @@ export default function ProfileScreen() {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <PremiumScreen>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
         {/* Header Block Frame Layout */}
         <View style={styles.headerRow}>
-          <Text style={styles.screenTitle}>Profile</Text>
+          <SectionHeader 
+            title="Profile" 
+            style={styles.headerFlexOverride}
+          />
           <TouchableOpacity style={styles.settingsIconButton} activeOpacity={0.7}>
             <Ionicons name="settings-outline" size={22} color="#1C1917" />
           </TouchableOpacity>
@@ -86,7 +92,7 @@ export default function ProfileScreen() {
 
         {/* Style Tag Preferences Layout Section */}
         <View style={styles.sectionBlock}>
-          <Text style={styles.sectionLabelTitle}>Style Preferences</Text>
+          <SectionTitle withBottomMargin>Style Preferences</SectionTitle>
           <View style={styles.tagsContainerRow}>
             {STYLE_PREFERENCES.map((preference, index) => (
               <View key={index} style={styles.preferenceTagBadge}>
@@ -99,7 +105,7 @@ export default function ProfileScreen() {
         {/* Options List Group Navigation Menus */}
         {MENU_SECTIONS.map((section, sectionIdx) => (
           <View key={sectionIdx} style={styles.sectionBlock}>
-            <Text style={styles.sectionLabelTitle}>{section.title}</Text>
+            <SectionTitle withBottomMargin>{section.title}</SectionTitle>
             <View style={styles.menuGroupCard}>
               {section.items.map((item, itemIdx) => {
                 const isLastItem = itemIdx === section.items.length - 1;
@@ -150,19 +156,19 @@ export default function ProfileScreen() {
 
         {/* Continuous App Platform Brand Footer Layout */}
         <View style={styles.appFooterDetailsContainer}>
-          <Text style={styles.footerBrandText}>StyleSync v1.0.0</Text>
+          <Text style={styles.footerBrandText}>VYRA v1.0.0</Text>
           <Text style={styles.footerSecondaryText}>Made with love for fashion lovers</Text>
         </View>
 
       </ScrollView>
-    </SafeAreaView>
+    </PremiumScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAF9', // Directly mapped design color --background from theme.css
+    backgroundColor: '#FAFAF9',
   },
   scrollContent: {
     paddingBottom: 48,
@@ -170,19 +176,18 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 24,
+    alignItems: 'flex-start',
+    paddingHorizontal: 16,
     paddingTop: 16,
     marginBottom: 20,
   },
-  screenTitle: {
-    fontSize: 24,
-    fontWeight: '400', // Matches elegant Light structure framework configuration rules
-    color: '#1C1917',
-    letterSpacing: 0.5,
+  headerFlexOverride: {
+    flex: 1,
+    paddingVertical: 0,
   },
   settingsIconButton: {
     padding: 4,
+    marginTop: 2,
   },
   profileHero: {
     alignItems: 'center',
@@ -197,13 +202,13 @@ const styles = StyleSheet.create({
   },
   profileName: {
     fontSize: 20,
-    fontWeight: '500', // Corresponding mapping for --font-weight-medium token
+    fontWeight: '500',
     color: '#1C1917',
     marginBottom: 4,
   },
   profileEmail: {
     fontSize: 14,
-    color: '#78716C', // Corresponds identically to --muted-foreground palette variable
+    color: '#78716C',
   },
   statsRowGrid: {
     flexDirection: 'row',
@@ -214,13 +219,13 @@ const styles = StyleSheet.create({
   },
   statMiniCard: {
     flex: 1,
-    backgroundColor: '#FFFFFF', // Corresponds directly with --card mapping values
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     paddingVertical: 14,
     paddingHorizontal: 8,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E7E5E4', // Systematic mapping from theme --border variables
+    borderColor: '#E7E5E4',
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.02,
@@ -242,17 +247,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   sectionBlock: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     marginBottom: 24,
-  },
-  sectionLabelTitle: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#78716C',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    marginBottom: 10,
-    paddingLeft: 4,
   },
   tagsContainerRow: {
     flexDirection: 'row',
@@ -260,7 +256,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   preferenceTagBadge: {
-    backgroundColor: '#F5F5F4', // Conforming directly to --secondary styling rules
+    backgroundColor: '#F5F5F4',
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 20,
@@ -308,7 +304,7 @@ const styles = StyleSheet.create({
     color: '#1C1917',
   },
   dangerItemLabel: {
-    color: '#DC2626', // Correct deployment architecture for --destructive parameter styles
+    color: '#DC2626',
   },
   counterBadge: {
     backgroundColor: '#F5F5F4',

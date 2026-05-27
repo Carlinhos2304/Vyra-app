@@ -10,8 +10,10 @@ import {
   Dimensions,
   FlatList,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { PremiumScreen } from '../../components/ui/PremiumScreen';
+import { SectionHeader } from '../../components/ui/SectionHeader';
+import { SectionTitle } from '../../components/ui/SectionTitle';
 
 const { width } = Dimensions.get('window');
 const GRID_ITEM_WIDTH = (width - 44) / 2; // Precise 2-column mathematical grid calculation matching theme margins
@@ -85,7 +87,7 @@ export default function CreateOutfitScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <PremiumScreen>
       <FlatList
         data={AVAILABLE_ITEMS}
         renderItem={renderAvailableItem}
@@ -96,12 +98,13 @@ export default function CreateOutfitScreen() {
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={styles.headerBlock}>
-            {/* Screen Header level */}
+            {/* Screen Header level with custom structural header block */}
             <View style={styles.topBar}>
-              <View>
-                <Text style={styles.title}>Create Outfit</Text>
-                <Text style={styles.subtitle}>Mix & match items from your wardrobe</Text>
-              </View>
+              <SectionHeader
+                title="Create Outfit"
+                subtitle="Mix & match items from your wardrobe"
+                style={styles.headerFlexOverride}
+              />
               <TouchableOpacity style={styles.saveActionCircle} activeOpacity={0.8}>
                 <Ionicons name="save-outline" size={20} color="#FAFAF9" />
               </TouchableOpacity>
@@ -109,7 +112,7 @@ export default function CreateOutfitScreen() {
 
             {/* Canvas Input Controller framework */}
             <View style={styles.formSection}>
-              <Text style={styles.label}>Outfit Details</Text>
+              <SectionTitle withBottomMargin>Outfit Details</SectionTitle>
               <TextInput
                 placeholder="Name your creation (e.g., Casual Friday)"
                 placeholderTextColor="#78716C"
@@ -122,8 +125,8 @@ export default function CreateOutfitScreen() {
             {/* Dynamic Workspace / Canvas Preview Section */}
             <View style={styles.canvasSection}>
               <View style={styles.canvasHeader}>
-                <MaterialCommunityIcons name="sparkles" size={16} color="#1C1917" style={styles.sparkleIcon} />
-                <Text style={styles.canvasTitle}>Outfit Canvas</Text>
+                <MaterialCommunityIcons name="sparkles" size={14} color="#1C1917" style={styles.sparkleIcon} />
+                <SectionTitle>Outfit Canvas</SectionTitle>
               </View>
 
               {selectedItems.length === 0 ? (
@@ -162,19 +165,19 @@ export default function CreateOutfitScreen() {
 
             {/* Section Split Title Separator */}
             <View style={styles.dividerHeader}>
-              <Text style={styles.sectionHeading}>Wardrobe Items</Text>
+              <SectionTitle>Wardrobe Items</SectionTitle>
             </View>
           </View>
         }
       />
-    </SafeAreaView>
+    </PremiumScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAF9', // Matches explicit global --background parameter value from theme.css
+    backgroundColor: '#FAFAF9',
   },
   scrollPadding: {
     paddingHorizontal: 16,
@@ -186,27 +189,22 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     paddingVertical: 16,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '400', // Premium light-weight matching from typography architectural choices
-    color: '#1C1917',
-    letterSpacing: 0.5,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#78716C', // Corresponds to token configuration mapping --muted-foreground 
-    marginTop: 2,
+  headerFlexOverride: {
+    flex: 1,
+    paddingVertical: 0,
   },
   saveActionCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#1C1917', // Primary dark core value configuration implementation
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#1C1917',
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 16,
+    marginTop: 2,
     shadowColor: '#1C1917',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
@@ -216,14 +214,8 @@ const styles = StyleSheet.create({
   formSection: {
     marginVertical: 12,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1C1917',
-    marginBottom: 8,
-  },
   textInputControl: {
-    backgroundColor: '#F5F5F4', // Structural layout variable element from --input-background system parameters
+    backgroundColor: '#F5F5F4',
     borderRadius: 16,
     height: 48,
     paddingHorizontal: 16,
@@ -253,11 +245,6 @@ const styles = StyleSheet.create({
   sparkleIcon: {
     marginRight: 6,
   },
-  canvasTitle: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#1C1917',
-  },
   emptyStateContainer: {
     height: 140,
     justifyContent: 'center',
@@ -284,7 +271,7 @@ const styles = StyleSheet.create({
   },
   canvasCardImage: {
     width: 90,
-    height: 120, // Strict mathematical scaling layout properties emulating aspect-[3/4] cards
+    height: 120,
     borderRadius: 12,
     backgroundColor: '#F5F5F4',
   },
@@ -306,13 +293,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   dividerHeader: {
-    marginTop: 16,
-    marginBottom: 12,
-  },
-  sectionHeading: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#1C1917',
+    marginTop: 24,
+    marginBottom: 16,
   },
   gridRow: {
     justifyContent: 'space-between',
@@ -357,7 +339,7 @@ const styles = StyleSheet.create({
   },
   gridCardName: {
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: '400',
     color: '#1C1917',
     textAlign: 'center',
   },

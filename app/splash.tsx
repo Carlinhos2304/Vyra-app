@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import VyraLogo from '../components/VyraLogo';
+import VyraLogo from '../components/branding/VyraLogo';
+import { PremiumLoader } from '../components/ui/PremiumLoader'; // Adjust path based on your exact file architecture
 
 const { height } = Dimensions.get('window');
 
@@ -75,13 +76,18 @@ export default function SplashScreen() {
         <View style={styles.textContainer}>
           <Text style={styles.brandTitleText}>VYRA</Text>
           <View style={styles.separatorDot} />
-          <Text style={styles.brandSubtitleText}>DIGITAL CLOSET & STYLIST</Text>
+          <Text style={styles.brandSubtitleText}>DIGITAL WARDROBE</Text>
+        </View>
+
+        {/* Reusable Premium Loader integrated seamlessly into the layout layout block */}
+        <View style={styles.loaderWrapper}>
+          <PremiumLoader label="PREPARING EXPERIENCE" />
         </View>
       </Animated.View>
 
       {/* Editorial fine-print baseline footer for a balanced composition layout */}
       <View style={styles.footerContainer}>
-        <Text style={styles.footerText}>PARIS — TOKYO — NEW YORK</Text>
+        <Text style={styles.footerText}>CHILE</Text>
       </View>
     </SafeAreaView>
   );
@@ -143,6 +149,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginLeft: 4, // Mathematically offsets trailing letterSpacing tracking parameters
     opacity: 0.7,
+  },
+  loaderWrapper: {
+    marginTop: 48, // Balanced white space break separating brand and structural load activity
+    height: 60,   // Explicit container bounding to completely avoid content popping shifts
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   footerContainer: {
     marginBottom: height * 0.05,

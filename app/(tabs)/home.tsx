@@ -10,6 +10,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { PremiumScreen } from '../../components/ui/PremiumScreen';
+import { SectionHeader } from '../../components/ui/SectionHeader';
+import { SectionTitle } from '../../components/ui/SectionTitle'; // Imported custom architectural sublabel
 
 const { width } = Dimensions.get('window');
 
@@ -26,6 +29,7 @@ const RECOMMENDATIONS = [
   {
     id: 1,
     title: 'Summer Breeze',
+    styleKey: 'Vyra Essentials',
     occasion: 'Casual',
     items: 4,
     likes: 234,
@@ -34,6 +38,7 @@ const RECOMMENDATIONS = [
   {
     id: 2,
     title: 'Office Ready',
+    styleKey: 'Tailored Linear',
     occasion: 'Work',
     items: 3,
     likes: 189,
@@ -51,7 +56,7 @@ export default function HomeScreen() {
   const [activeOccasion, setActiveOccasion] = useState('All');
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <PremiumScreen>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
         {/* Header Block Frame Layout */}
@@ -93,11 +98,15 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
 
-        {/* Section Structure: Recommendations Grid */}
+        {/* Section Structure: Recommendations Grid (Utilizes Main SectionHeader) */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recommended for You</Text>
-            <TouchableOpacity activeOpacity={0.6}>
+          <View style={styles.sectionHeaderRow}>
+            <SectionHeader 
+              title="Recommended for You" 
+              subtitle="Curated daily based on your preferences"
+              style={styles.headerFlexOverride}
+            />
+            <TouchableOpacity activeOpacity={0.6} style={styles.seeAllWrapper}>
               <Text style={styles.seeAllButton}>See all</Text>
             </TouchableOpacity>
           </View>
@@ -125,6 +134,7 @@ export default function HomeScreen() {
 
                 {/* Sub-Card Content Details Label Setup */}
                 <View style={styles.cardDetails}>
+                  <SectionTitle withBottomMargin>{outfit.styleKey}</SectionTitle>
                   <Text style={styles.cardTitle}>{outfit.title}</Text>
                   <View style={styles.cardMetadataRow}>
                     <Text style={styles.metadataText}>{outfit.items} items</Text>
@@ -157,11 +167,11 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Section Structure: Trending Elements Shelf Grid */}
+        {/* Section Structure: Trending Elements Shelf Grid (Utilizes Lightweight SectionTitle) */}
         <View style={styles.section}>
           <View style={styles.trendingHeaderRow}>
-            <MaterialCommunityIcons name="trending-up" size={22} color="#1C1917" style={styles.trendingTitleIcon} />
-            <Text style={styles.sectionTitle}>Trending Now</Text>
+            <MaterialCommunityIcons name="trending-up" size={16} color="#1C1917" style={styles.trendingTitleIcon} />
+            <SectionTitle style={styles.headerFlexOverride}>Trending Now</SectionTitle>
           </View>
 
           <View style={styles.trendingGrid}>
@@ -182,14 +192,14 @@ export default function HomeScreen() {
         </View>
 
       </ScrollView>
-    </SafeAreaView>
+    </PremiumScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAF9', // Derived token setup matching --background configuration variable
+    backgroundColor: '#FAFAF9',
   },
   scrollContent: {
     paddingBottom: 40,
@@ -197,26 +207,26 @@ const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: '#FAFAF9',
     borderBottomWidth: 1,
-    borderColor: '#E7E5E4', // Derived from token value --border matching system guidelines
+    borderColor: '#E7E5E4',
     paddingBottom: 16,
   },
   headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     paddingTop: 16,
     marginBottom: 16,
   },
   title: {
     fontSize: 24,
-    fontWeight: '300', // Matches tracking font-light token specification exactly
+    fontWeight: '300',
     color: '#1C1917',
     letterSpacing: 0.5,
   },
   subtitle: {
     fontSize: 14,
-    color: '#78716C', // System configuration code mapping to --muted-foreground 
+    color: '#78716C',
     marginTop: 2,
   },
   iconButton: {
@@ -229,13 +239,13 @@ const styles = StyleSheet.create({
   badge: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 24, // Consistent design framework styling variables
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
   },
   badgeActive: {
-    backgroundColor: '#1C1917', // Linked identifier setup matching structural palette
+    backgroundColor: '#1C1917',
     borderColor: '#1C1917',
   },
   badgeInactive: {
@@ -251,24 +261,29 @@ const styles = StyleSheet.create({
     color: '#FAFAF9',
   },
   section: {
-    paddingHorizontal: 24,
-    marginTop: 28,
+    paddingHorizontal: 16,
+    marginTop: 24,
   },
-  sectionHeader: {
+  sectionHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
+    alignItems: 'flex-start',
+    marginBottom: 12,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#1C1917',
+  headerFlexOverride: {
+    flex: 1,
+    paddingVertical: 0,
+  },
+  seeAllWrapper: {
+    paddingLeft: 12,
+    paddingTop: 2, 
   },
   seeAllButton: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#1C1917',
-    fontWeight: '400',
+    fontWeight: '500',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
   cardsStack: {
     gap: 16,
@@ -282,7 +297,7 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     width: '100%',
-    height: (width - 48) * 1.33, // High precision mathematical translation of aspect-[3/4] grid configuration properties
+    height: (width - 48) * 1.33,
     backgroundColor: '#F5F5F4',
     position: 'relative',
   },
@@ -325,9 +340,9 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '400',
     color: '#1C1917',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   cardMetadataRow: {
     flexDirection: 'row',
@@ -335,7 +350,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   metadataText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#78716C',
   },
   likesWrapper: {
@@ -384,10 +399,11 @@ const styles = StyleSheet.create({
   trendingHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 14,
   },
   trendingTitleIcon: {
-    marginRight: 8,
+    marginRight: 6,
+    color: '#1C1917',
   },
   trendingGrid: {
     flexDirection: 'row',

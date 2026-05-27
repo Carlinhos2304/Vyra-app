@@ -11,6 +11,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { PremiumScreen } from '../../components/ui/PremiumScreen';
+import { SectionHeader } from '../../components/ui/SectionHeader';
+import { SectionTitle } from '../../components/ui/SectionTitle';
 
 const { width } = Dimensions.get('window');
 
@@ -29,7 +32,7 @@ export default function ClothingDetailScreen() {
   const { id, name, brand, category, image, color } = params;
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <PremiumScreen>
       {/* Absolute Header Navigation Overlay */}
       <View style={styles.navBarFloatingOverlay}>
         <TouchableOpacity 
@@ -63,33 +66,38 @@ export default function ClothingDetailScreen() {
         {/* Informational Presentation Shell */}
         <View style={styles.detailCardBody}>
           <View style={styles.identityHeaderRow}>
-            <View style={styles.titleTextContainer}>
-              <Text style={styles.brandSubtitleText}>{brand || 'Unknown Brand'}</Text>
-              <Text style={styles.garmentNameTitleText}>{name || 'Unnamed Garment'}</Text>
-            </View>
+            <SectionHeader
+              title={name || 'Unnamed Garment'}
+              subtitle={brand || 'Unknown Brand'}
+              style={styles.headerFlexOverride}
+            />
             <View style={styles.categoryBadgeContainer}>
               <Text style={styles.categoryBadgeText}>{category || 'Uncategorized'}</Text>
             </View>
           </View>
 
           {/* Attribute Structured Parameters Data Grid */}
-          <View style={styles.attributesSpecificationGrid}>
-            <View style={styles.gridAttributeCell}>
-              <Text style={styles.attributeLabelText}>Color</Text>
-              <View style={styles.colorIndicatorRow}>
-                <View 
-                  style={[
-                    styles.colorBlockVisual, 
-                    { backgroundColor: color ? color.toLowerCase() : 'transparent' }
-                  ]} 
-                />
-                <Text style={styles.attributeValueText}>{color || 'N/A'}</Text>
+          <View style={styles.attributesSection}>
+            <SectionTitle withBottomMargin>Garment Details</SectionTitle>
+            
+            <View style={styles.attributesSpecificationGrid}>
+              <View style={styles.gridAttributeCell}>
+                <Text style={styles.attributeLabelText}>Color</Text>
+                <View style={styles.colorIndicatorRow}>
+                  <View 
+                    style={[
+                      styles.colorBlockVisual, 
+                      { backgroundColor: color ? color.toLowerCase() : 'transparent' }
+                    ]} 
+                  />
+                  <Text style={styles.attributeValueText}>{color || 'N/A'}</Text>
+                </View>
               </View>
-            </View>
 
-            <View style={styles.gridAttributeCell}>
-              <Text style={styles.attributeLabelText}>ID</Text>
-              <Text style={styles.attributeValueText}>#{id || 'N/A'}</Text>
+              <View style={styles.gridAttributeCell}>
+                <Text style={styles.attributeLabelText}>ID</Text>
+                <Text style={styles.attributeValueText}>#{id || 'N/A'}</Text>
+              </View>
             </View>
           </View>
 
@@ -107,14 +115,14 @@ export default function ClothingDetailScreen() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </PremiumScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAF9', // Adheres strictly to global --background configuration in theme.css
+    backgroundColor: '#FAFAF9',
   },
   scrollLayout: {
     paddingBottom: 40,
@@ -148,7 +156,7 @@ const styles = StyleSheet.create({
   },
   heroImageFrame: {
     width: width,
-    height: width * 1.25, // Formulates premium structural scale framework aspect configuration choices
+    height: width * 1.25,
     backgroundColor: '#F5F5F4',
   },
   garmentCoverImage: {
@@ -169,47 +177,37 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  titleTextContainer: {
+  headerFlexOverride: {
     flex: 1,
+    paddingVertical: 0,
     paddingRight: 16,
-  },
-  brandSubtitleText: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#78716C', // Aligns identically with design tokens mapping --muted-foreground 
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-  garmentNameTitleText: {
-    fontSize: 24,
-    fontWeight: '400',
-    color: '#1C1917',
-    letterSpacing: 0.3,
   },
   categoryBadgeContainer: {
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E7E5E4', // Derived from --border schema rules variables
+    borderColor: '#E7E5E4',
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 6,
+    marginTop: 4,
   },
   categoryBadgeText: {
     fontSize: 12,
     fontWeight: '500',
     color: '#78716C',
   },
+  attributesSection: {
+    marginTop: 24,
+    marginBottom: 16,
+  },
   attributesSpecificationGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    backgroundColor: '#FFFFFF', // Maps to structural interface card rules --card specification parameter
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#E7E5E4',
     padding: 4,
-    marginTop: 24,
-    marginBottom: 24,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.01,
@@ -274,7 +272,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#FCA5A5', // Soft error boundary frame highlighting
+    borderColor: '#FCA5A5',
     backgroundColor: '#FFF5F5',
     justifyContent: 'center',
     alignItems: 'center',
@@ -282,7 +280,7 @@ const styles = StyleSheet.create({
   destructiveButtonLabelText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#DC2626', // Direct deployment mapping architectural specifications --destructive variables
+    color: '#DC2626',
   },
   actionButtonIconStyle: {
     marginRight: 6,

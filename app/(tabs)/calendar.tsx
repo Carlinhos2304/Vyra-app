@@ -10,12 +10,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { PremiumScreen } from '../../components/ui/PremiumScreen';
+import { SectionHeader } from '../../components/ui/SectionHeader';
+import { SectionTitle } from '../../components/ui/SectionTitle';
 
 const { width } = Dimensions.get('window');
 const CALENDAR_DAY_WIDTH = (width - 48 - 36) / 7; // Precise layout alignment for the 7-day grid system
-
-// Authentic mock data structure extracted and mapped from the source Figma component configuration code
-const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 const DAYS_DATA = [
   { id: '1', date: '20', label: 'Mon', active: true, planned: true },
@@ -44,16 +44,17 @@ export default function CalendarScreen() {
   const [selectedDay, setSelectedDay] = useState('1');
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <PremiumScreen>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollLayout}>
         
         {/* Header Infrastructure Framework */}
         <View style={styles.headerStack}>
           <View style={styles.headerTopRow}>
-            <View>
-              <Text style={styles.titleText}>Outfit Planner</Text>
-              <Text style={styles.subtitleText}>May 2024</Text>
-            </View>
+            <SectionHeader
+              title="Outfit Planner"
+              subtitle="May 2024"
+              style={styles.headerFlexOverride}
+            />
             <TouchableOpacity style={styles.addButtonCircle} activeOpacity={0.8}>
               <Ionicons name="add" size={24} color="#FAFAF9" />
             </TouchableOpacity>
@@ -62,7 +63,7 @@ export default function CalendarScreen() {
           {/* Horizontal Weekly Navigator Row Grid */}
           <View style={styles.calendarControlStrip}>
             <View style={styles.stripHeader}>
-              <Text style={styles.stripLabelText}>This Week</Text>
+              <SectionTitle>This Week</SectionTitle>
               <View style={styles.chevronControls}>
                 <TouchableOpacity style={styles.chevronInlineButton} activeOpacity={0.6}>
                   <Ionicons name="chevron-back" size={16} color="#1C1917" />
@@ -104,7 +105,7 @@ export default function CalendarScreen() {
 
         {/* Dynamic Section: Outfit Plan Preview Area */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionHeaderHeading}>Selected Outfit</Text>
+          <SectionTitle withBottomMargin>Selected Outfit</SectionTitle>
           
           {selectedDay === '1' ? (
             <View style={styles.plannedOutfitCard}>
@@ -137,7 +138,7 @@ export default function CalendarScreen() {
 
         {/* Section Infrastructure: Upcoming Events Stack Frame */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionHeaderHeading}>Upcoming Events</Text>
+          <SectionTitle withBottomMargin>Upcoming Events</SectionTitle>
           <View style={styles.eventsVerticalStackLayout}>
             {UPCOMING_EVENTS.map((event) => (
               <View key={event.id} style={styles.eventRowCard}>
@@ -161,17 +162,17 @@ export default function CalendarScreen() {
         </View>
 
       </ScrollView>
-    </SafeAreaView>
+    </PremiumScreen>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAF9', // Architectural sync parameters binding to core --background layout rules
+    backgroundColor: '#FAFAF9',
   },
   scrollLayout: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
     paddingBottom: 32,
   },
   headerStack: {
@@ -180,27 +181,22 @@ const styles = StyleSheet.create({
   headerTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     paddingVertical: 16,
   },
-  titleText: {
-    fontSize: 24,
-    fontWeight: '400', // Premium light-weight typography matching theme architecture setup
-    color: '#1C1917',
-    letterSpacing: 0.5,
-  },
-  subtitleText: {
-    fontSize: 14,
-    color: '#78716C', // System parameter assignment derived from --muted-foreground 
-    marginTop: 2,
+  headerFlexOverride: {
+    flex: 1,
+    paddingVertical: 0,
   },
   addButtonCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#1C1917', // Linked core interface identifier configuration variable
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#1C1917',
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 16,
+    marginTop: 2,
     shadowColor: '#1C1917',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
@@ -208,7 +204,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   calendarControlStrip: {
-    backgroundColor: '#FFFFFF', // Corresponds systematically with --card layout variables
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#E7E5E4',
@@ -225,11 +221,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 14,
-  },
-  stripLabelText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1C1917',
   },
   chevronControls: {
     flexDirection: 'row',
@@ -290,12 +281,6 @@ const styles = StyleSheet.create({
   sectionContainer: {
     marginTop: 24,
   },
-  sectionHeaderHeading: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#1C1917',
-    marginBottom: 12,
-  },
   plannedOutfitCard: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
@@ -306,7 +291,7 @@ const styles = StyleSheet.create({
   },
   cardImageContainer: {
     width: 100,
-    height: 130, // Precise aspect control system matching aspect-[3/4] configuration guidelines
+    height: 130,
     backgroundColor: '#F5F5F4',
   },
   outfitCoverImage: {
@@ -392,7 +377,7 @@ const styles = StyleSheet.create({
   },
   eventRowCard: {
     flexDirection: 'row',
-    backgroundColor: '#F5F5F4', // Conforming explicitly with --secondary styling specifications
+    backgroundColor: '#F5F5F4',
     borderRadius: 16,
     padding: 14,
     alignItems: 'center',
@@ -420,7 +405,7 @@ const styles = StyleSheet.create({
   },
   eventNameMainText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '400',
     color: '#1C1917',
     marginBottom: 2,
   },

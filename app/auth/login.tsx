@@ -11,18 +11,33 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
-import VyraLogo from '../../components/VyraLogo';
+import VyraLogo from '../../components/branding/VyraLogo';
+import { PremiumButton } from '../../components/ui/PremiumButton'; 
+import { PremiumScreen } from '../../components/ui/PremiumScreen';
+import { PremiumInput } from '../../components/ui/PremiumInput';
+import { SectionHeader } from '../../components/ui/SectionHeader';
+import { SectionTitle } from '../../components/ui/SectionTitle';
+import { PremiumLoader } from '../../components/ui/PremiumLoader';
+
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignIn = () => {
-    // Navigate to the tabs home screen and clear the navigation history stack
-    router.replace('/(tabs)/home');
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    
+    // Simulate authentication timing before navigating
+    setTimeout(() => {
+      setIsLoading(false);
+      router.replace('/(tabs)/home');
+    }, 2000);
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <PremiumScreen>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
@@ -35,43 +50,43 @@ export default function LoginScreen() {
                 <VyraLogo size={56} />
               </View>
             </View>
-            <Text style={styles.appName}>Vyra</Text>
-            <Text style={styles.subtitle}>Welcome back</Text>
+            <SectionHeader 
+              title="Vyra" 
+              subtitle="Welcome back" 
+              style={styles.headerCenteredOverride} 
+            />
           </View>
 
           {/* Form Section */}
           <View style={styles.formContainer}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
+            <SectionTitle withBottomMargin>Account Access</SectionTitle>
+
+            <PremiumInput
+              label="Email"
               placeholder="your@email.com"
-              placeholderTextColor="#999999"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
+              editable={!isLoading}
             />
 
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
+            <PremiumInput
+              label="Password"
               placeholder="••••••••"
-              placeholderTextColor="#999999"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
+              editable={!isLoading}
             />
-
-            <TouchableOpacity 
-              style={styles.signInButton} 
-              activeOpacity={0.8}
-              onPress={handleSignIn}
-            >
-              <Text style={styles.signInButtonText}>Sign In</Text>
-            </TouchableOpacity>
+            
+            {/* Conditional Authentication View Slot */}
+            {isLoading ? (
+              <View style={styles.loaderButtonPlaceholder}>
+                <PremiumLoader />
+              </View>
+            ) : (
+              <PremiumButton label="Sign In" onPress={handleSignIn} />
+            )}
           </View>
 
           {/* Divider */}
@@ -83,9 +98,10 @@ export default function LoginScreen() {
 
           {/* OAuth Section */}
           <TouchableOpacity 
-            style={styles.googleButton} 
+            style={[styles.googleButton, isLoading && styles.disabledElement]} 
             activeOpacity={0.8}
             onPress={handleSignIn}
+            disabled={isLoading}
           >
             <View style={styles.googleContent}>
               <View style={styles.envelopeIcon}>
@@ -96,17 +112,17 @@ export default function LoginScreen() {
           </TouchableOpacity>
 
           {/* Footer Section */}
-          <View style={styles.footerContainer}>
+          <View style={[styles.footerContainer, isLoading && styles.disabledElement]}>
             <Text style={styles.footerText}>Don't have an account? </Text>
-            <Link href="/auth/signup" asChild>
-              <TouchableOpacity activeOpacity={0.7}>
+            <Link href="/auth/signup" asChild disabled={isLoading}>
+              <TouchableOpacity activeOpacity={0.7} disabled={isLoading}>
                 <Text style={styles.signUpText}>Sign up</Text>
               </TouchableOpacity>
             </Link>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </PremiumScreen>
   );
 }
 
@@ -140,53 +156,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'relative',
   },
-  starDiamond: {
-    position: 'absolute',
-    borderWidth: 2,
-    borderColor: '#000000',
-    backgroundColor: '#FAFAFA',
-    borderRadius: 8,
-  },
-  starHorizontal: {
-    width: 24,
-    height: 24,
-    transform: [{ rotate: '45deg' }, { scaleX: 1.3 }],
-  },
-  starVertical: {
-    width: 24,
-    height: 24,
-    transform: [{ rotate: '45deg' }, { scaleY: 1.3 }],
-  },
-  starPlusHorizontal: {
-    position: 'absolute',
-    top: 6,
-    right: 2,
-    width: 8,
-    height: 2,
-    backgroundColor: '#000000',
-  },
-  starPlusVertical: {
-    position: 'absolute',
-    top: 3,
-    right: 5,
-    width: 2,
-    height: 8,
-    backgroundColor: '#000000',
-  },
-  appName: {
-    fontSize: 32,
-    fontWeight: '300',
-    color: '#000000',
-    letterSpacing: 0.5,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666666',
-    marginTop: 8,
+  headerCenteredOverride: {
+    alignItems: 'center',
+    paddingVertical: 0,
   },
   formContainer: {
     width: '100%',
     marginBottom: 24,
+  },
+  loaderButtonPlaceholder: {
+    height: 52, // Explicitly balances the exact spatial height footprint of PremiumButton
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   label: {
     fontSize: 14,
@@ -202,19 +183,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 15,
     color: '#000000',
-  },
-  signInButton: {
-    height: 52,
-    backgroundColor: '#1C1A17',
-    borderRadius: 26,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 24,
-  },
-  signInButtonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '600',
   },
   dividerContainer: {
     flexDirection: 'row',
@@ -286,5 +254,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#000000',
     fontWeight: '500',
+  },
+  disabledElement: {
+    opacity: 0.4,
   },
 });
