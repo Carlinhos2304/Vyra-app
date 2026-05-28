@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   ScrollView,
-  TouchableOpacity,
   Image,
   Dimensions,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { PremiumScreen } from '../../components/ui/PremiumScreen';
+import { PremiumCard } from '../../components/ui/PremiumCard';
+import { PremiumTouchable } from '../../components/ui/PremiumTouchable';
 import { SectionHeader } from '../../components/ui/SectionHeader';
-import { SectionTitle } from '../../components/ui/SectionTitle'; // Imported custom architectural sublabel
+import { SectionTitle } from '../../components/ui/SectionTitle'; 
+import VyraLogo from '../../components/branding/VyraLogo';
 
 const { width } = Dimensions.get('window');
 
-// Precise mapping of static assets and parameters from Figma React design code
 const OCCASIONS = [
   { id: 1, label: 'All', active: true },
   { id: 2, label: 'Casual' },
@@ -55,65 +57,163 @@ const TRENDING_ITEMS = [
 export default function HomeScreen() {
   const [activeOccasion, setActiveOccasion] = useState('All');
 
+  // Animation values using standard Refs
+  const headerOpacity = useRef(new Animated.Value(0)).current;
+  const headerTranslateY = useRef(new Animated.Value(-12)).current;
+
+  const occasionsOpacity = useRef(new Animated.Value(0)).current;
+  const occasionsTranslateY = useRef(new Animated.Value(8)).current;
+
+  const recommendationsOpacity = useRef(new Animated.Value(0)).current;
+  const recommendationsTranslateY = useRef(new Animated.Value(16)).current;
+
+  const bannerOpacity = useRef(new Animated.Value(0)).current;
+  const bannerTranslateX = useRef(new Animated.Value(16)).current;
+
+  const trendingOpacity = useRef(new Animated.Value(0)).current;
+  const trendingTranslateY = useRef(new Animated.Value(12)).current;
+
+  useEffect(() => {
+    // Premium staggered orchestration sequence
+    Animated.stagger(100, [
+      // 1. Reveal Header Title Block
+      Animated.parallel([
+        Animated.timing(headerOpacity, {
+          toValue: 1,
+          duration: 450,
+          useNativeDriver: true,
+        }),
+        Animated.timing(headerTranslateY, {
+          toValue: 0,
+          duration: 450,
+          useNativeDriver: true,
+        }),
+      ]),
+      // 2. Reveal Horizontal Occasions Shelf
+      Animated.parallel([
+        Animated.timing(occasionsOpacity, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(occasionsTranslateY, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
+      // 3. Reveal Curated Outfits Stack
+      Animated.parallel([
+        Animated.timing(recommendationsOpacity, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(recommendationsTranslateY, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]),
+      // 4. Slide In Trend Banner
+      Animated.parallel([
+        Animated.timing(bannerOpacity, {
+          toValue: 1,
+          duration: 450,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bannerTranslateX, {
+          toValue: 0,
+          duration: 450,
+          useNativeDriver: true,
+        }),
+      ]),
+      // 5. Rise Trending Essentials Matrix
+      Animated.parallel([
+        Animated.timing(trendingOpacity, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(trendingTranslateY, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start();
+  }, []);
+
   return (
     <PremiumScreen>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
         {/* Header Block Frame Layout */}
-        <View style={styles.headerContainer}>
+        <Animated.View style={[
+          styles.headerContainer, 
+          { opacity: headerOpacity, transform: [{ translateY: headerTranslateY }] }
+        ]}>
           <View style={styles.headerTop}>
             <View>
               <Text style={styles.title}>Good Morning</Text>
               <Text style={styles.subtitle}>Ready to style your day?</Text>
             </View>
-            <TouchableOpacity style={styles.iconButton} activeOpacity={0.7}>
-              <MaterialCommunityIcons name="sparkles" size={24} color="#1C1917" />
-            </TouchableOpacity>
+            <PremiumTouchable style={styles.iconButton} onPress={() => console.log('Logo Press')}>
+              <VyraLogo/>
+            </PremiumTouchable>
           </View>
 
           {/* Horizontal Badges Scroll Area */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.occasionsScroll}
-          >
-            {OCCASIONS.map((occasion) => {
-              const isActive = activeOccasion === occasion.label;
-              return (
-                <TouchableOpacity
-                  key={occasion.id}
-                  onPress={() => setActiveOccasion(occasion.label)}
-                  activeOpacity={0.8}
-                  style={[
-                    styles.badge,
-                    isActive ? styles.badgeActive : styles.badgeInactive,
-                  ]}
-                >
-                  <Text style={[styles.badgeText, isActive && styles.badgeTextActive]}>
-                    {occasion.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
+          <Animated.View style={{ opacity: occasionsOpacity, transform: [{ translateY: occasionsTranslateY }] }}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.occasionsScroll}
+            >
+              {OCCASIONS.map((occasion) => {
+                const isActive = activeOccasion === occasion.label;
+                return (
+                  <PremiumTouchable
+                    key={occasion.id}
+                    onPress={() => setActiveOccasion(occasion.label)}
+                    style={[
+                      styles.badge,
+                      isActive ? styles.badgeActive : styles.badgeInactive,
+                    ]}
+                  >
+                    <Text style={[styles.badgeText, isActive && styles.badgeTextActive]}>
+                      {occasion.label}
+                    </Text>
+                  </PremiumTouchable>
+                );
+              })}
+            </ScrollView>
+          </Animated.View>
+        </Animated.View>
 
-        {/* Section Structure: Recommendations Grid (Utilizes Main SectionHeader) */}
-        <View style={styles.section}>
+        {/* Section Structure: Recommendations Grid */}
+        <Animated.View style={[
+          styles.section, 
+          { opacity: recommendationsOpacity, transform: [{ translateY: recommendationsTranslateY }] }
+        ]}>
           <View style={styles.sectionHeaderRow}>
             <SectionHeader 
               title="Recommended for You" 
               subtitle="Curated daily based on your preferences"
               style={styles.headerFlexOverride}
             />
-            <TouchableOpacity activeOpacity={0.6} style={styles.seeAllWrapper}>
+            <PremiumTouchable style={styles.seeAllWrapper} onPress={() => console.log('See All')}>
               <Text style={styles.seeAllButton}>See all</Text>
-            </TouchableOpacity>
+            </PremiumTouchable>
           </View>
 
           <View style={styles.cardsStack}>
             {RECOMMENDATIONS.map((outfit) => (
-              <View key={outfit.id} style={styles.outfitCard}>
+              <PremiumCard 
+                key={outfit.id} 
+                style={styles.outfitCard}
+                onPress={() => console.log(`Maps to Outfit: ${outfit.title}`)}
+              >
                 <View style={styles.imageWrapper}>
                   <Image source={{ uri: outfit.image }} style={styles.cardImage} />
                   
@@ -123,12 +223,12 @@ export default function HomeScreen() {
                   </View>
 
                   <View style={styles.actionsContainer}>
-                    <TouchableOpacity style={styles.floatingActionButton} activeOpacity={0.8}>
+                    <PremiumTouchable style={styles.floatingActionButton} onPress={() => console.log('Like Outfit')}>
                       <Ionicons name="heart-outline" size={18} color="#1C1917" />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.floatingActionButton} activeOpacity={0.8}>
+                    </PremiumTouchable>
+                    <PremiumTouchable style={styles.floatingActionButton} onPress={() => console.log('Share Outfit')}>
                       <Ionicons name="share-social-outline" size={18} color="#1C1917" />
-                    </TouchableOpacity>
+                    </PremiumTouchable>
                   </View>
                 </View>
 
@@ -144,14 +244,17 @@ export default function HomeScreen() {
                     </View>
                   </View>
                 </View>
-              </View>
+              </PremiumCard>
             ))}
           </View>
-        </View>
+        </Animated.View>
 
         {/* Section Structure: Editorial Tip Callout Banner */}
-        <View style={styles.section}>
-          <TouchableOpacity style={styles.bannerCard} activeOpacity={0.9}>
+        <Animated.View style={[
+          styles.section, 
+          { opacity: bannerOpacity, transform: [{ translateX: bannerTranslateX }] }
+        ]}>
+          <PremiumCard style={styles.bannerCard} onPress={() => console.log('Tips Pressed')}>
             <View style={styles.bannerContent}>
               <View style={styles.bannerTextContainer}>
                 <View style={styles.bannerHeaderRow}>
@@ -164,11 +267,14 @@ export default function HomeScreen() {
               </View>
               <MaterialCommunityIcons name="sparkles" size={26} color="#FAFAF9" style={styles.bannerSparkle} />
             </View>
-          </TouchableOpacity>
-        </View>
+          </PremiumCard>
+        </Animated.View>
 
-        {/* Section Structure: Trending Elements Shelf Grid (Utilizes Lightweight SectionTitle) */}
-        <View style={styles.section}>
+        {/* Section Structure: Trending Elements Shelf Grid */}
+        <Animated.View style={[
+          styles.section, 
+          { opacity: trendingOpacity, transform: [{ translateY: trendingTranslateY }] }
+        ]}>
           <View style={styles.trendingHeaderRow}>
             <MaterialCommunityIcons name="trending-up" size={16} color="#1C1917" style={styles.trendingTitleIcon} />
             <SectionTitle style={styles.headerFlexOverride}>Trending Now</SectionTitle>
@@ -189,7 +295,7 @@ export default function HomeScreen() {
               </View>
             ))}
           </View>
-        </View>
+        </Animated.View>
 
       </ScrollView>
     </PremiumScreen>
@@ -197,10 +303,6 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FAFAF9',
-  },
   scrollContent: {
     paddingBottom: 40,
   },
@@ -294,6 +396,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#E7E5E4',
+    width: '100%',
   },
   imageWrapper: {
     width: '100%',
@@ -314,6 +417,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
+    zIndex: 2,
   },
   cardTagText: {
     fontSize: 12,
@@ -326,6 +430,7 @@ const styles = StyleSheet.create({
     right: 12,
     flexDirection: 'row',
     gap: 8,
+    zIndex: 2,
   },
   floatingActionButton: {
     width: 36,
@@ -364,6 +469,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#1C1917',
     borderRadius: 16,
     padding: 24,
+    borderWidth: 0,
+    width: '100%',
   },
   bannerContent: {
     flexDirection: 'row',
@@ -416,6 +523,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 12,
     alignItems: 'center',
+    borderWidth: 0,
   },
   miniCardIconWrapper: {
     width: '100%',

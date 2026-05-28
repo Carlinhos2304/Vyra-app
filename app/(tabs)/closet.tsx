@@ -1,21 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TextInput,
-  TouchableOpacity,
-  Image,
   Dimensions,
   FlatList,
+  Image,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { PremiumScreen } from '../../components/ui/PremiumScreen';
 import { PremiumCard } from '../../components/ui/PremiumCard';
+import { PremiumTouchable } from '../../components/ui/PremiumTouchable';
+import { StaggeredListWrapper } from '../../constants/motion/StaggeredListWrapper';
 import { SectionHeader } from '../../components/ui/SectionHeader'; 
-import { SectionTitle } from '../../components/ui/SectionTitle'; // Imported architectural sublabel
+import { SectionTitle } from '../../components/ui/SectionTitle';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 44) / 2;
@@ -66,31 +68,83 @@ export default function ClosetScreen() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const renderItem = ({ item }: { item: typeof GARMENTS_DATA[0] }) => (
-    <TouchableOpacity
-      activeOpacity={0.9}
-      onPress={() =>
-        router.push({
-          pathname: 'clothing/[id]',
-          params: {
-            id: item.id,
-            name: item.name,
-            brand: item.brand,
-            category: item.category,
-            image: item.image,
-            color: item.color,
-          },
-        })
-      }
-    >
-      <PremiumCard style={styles.card}>
+  // Top header elements animation tokens
+  const entryHeaderOpacity = useRef(new Animated.Value(0)).current;
+  const entryHeaderTranslateY = useRef(new Animated.Value(-10)).current;
+  
+  const searchBarOpacity = useRef(new Animated.Value(0)).current;
+  const searchBarTranslateY = useRef(new Animated.Value(12)).current;
+
+  const filtersOpacity = useRef(new Animated.Value(0)).current;
+  const filtersTranslateY = useRef(new Animated.Value(8)).current;
+
+  // Empty state scale tracking
+  const emptyScaleAnim = useRef(new Animated.Value(0.95)).current;
+  const emptyOpacityAnim = useRef(new Animated.Value(0)).current;
+
+  // Dynamic search and filter processing mapping
+  const filteredGarments = GARMENTS_DATA.filter((garment) => {
+    const matchesCategory = activeCategory === 'All' || garment.category === activeCategory;
+    const matchesQuery = garment.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         garment.brand.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesQuery;
+  });
+
+  useEffect(() => {
+    // Structural layout entrance stagger chain
+    Animated.stagger(90, [
+      Animated.parallel([
+        Animated.timing(entryHeaderOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+        Animated.timing(entryHeaderTranslateY, { toValue: 0, duration: 400, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(searchBarOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+        Animated.timing(searchBarTranslateY, { toValue: 0, duration: 400, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(filtersOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
+        Animated.timing(filtersTranslateY, { toValue: 0, duration: 350, useNativeDriver: true }),
+      ]),
+    ]).start();
+  }, []);
+
+  // Trigger smooth arrival metrics when empty configuration states map true
+  useEffect(() => {
+    if (filteredGarments.length === 0) {
+      Animated.parallel([
+        Animated.timing(emptyOpacityAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
+        Animated.spring(emptyScaleAnim, { toValue: 1, tension: 25, friction: 7, useNativeDriver: true }),
+      ]).start();
+    } else {
+      emptyOpacityAnim.setValue(0);
+      emptyScaleAnim.setValue(0.95);
+    }
+  }, [filteredGarments.length]);
+
+  const renderItem = ({ item, index }: { item: typeof GARMENTS_DATA[0]; index: number }) => (
+    <StaggeredListWrapper index={index}>
+      <PremiumCard 
+        style={styles.card}
+        onPress={() =>
+          router.push({
+            pathname: 'clothing/[id]',
+            params: {
+              id: item.id,
+              name: item.name,
+              brand: item.brand,
+              category: item.category,
+              image: item.image,
+              color: item.color,
+            },
+          })
+        }
+      >
         <View style={styles.imageWrapper}>
-          <Image source={{ uri: item.image }} style={styles.garmentImage} />
+          <Image source={{ uri: item.image }} style={styles.imageGarmentImage} />
           <View style={[styles.colorIndicator, { backgroundColor: item.color }]} />
         </View>
 
         <View style={styles.cardInfo}>
-          {/* Subtle architectural label mapping for brand system alignment */}
           <SectionTitle withBottomMargin>{item.brand}</SectionTitle>
           
           <Text style={styles.garmentName} numberOfLines={1}>
@@ -104,35 +158,43 @@ export default function ClosetScreen() {
           </View>
         </View>
       </PremiumCard>
-    </TouchableOpacity>
+    </StaggeredListWrapper>
   );
 
   return (
     <PremiumScreen>
       <FlatList
-        data={GARMENTS_DATA}
+        data={filteredGarments}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         numColumns={2}
         columnWrapperStyle={styles.gridRow}
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
+        // Forces re-stagger layout recalculation gracefully when structural categories flip
+        extraData={activeCategory} 
         ListHeaderComponent={
           <View style={styles.headerStack}>
             {/* Title Block Area with Premium Layout System */}
-            <View style={styles.titleRow}>
+            <Animated.View style={[
+              styles.titleRow,
+              { opacity: entryHeaderOpacity, transform: [{ translateY: entryHeaderTranslateY }] }
+            ]}>
               <SectionHeader 
                 title="My Closet" 
                 subtitle={`${GARMENTS_DATA.length} items catalogued`}
                 style={styles.headerFlexOverride}
               />
-              <TouchableOpacity style={styles.actionAddButton} activeOpacity={0.8}>
+              <PremiumTouchable style={styles.actionAddButton} onPress={() => console.log('Add Item')}>
                 <Feather name="plus" size={22} color="#FAFAF9" />
-              </TouchableOpacity>
-            </View>
+              </PremiumTouchable>
+            </Animated.View>
 
             {/* Global Input Controller Framework */}
-            <View style={styles.searchContainer}>
+            <Animated.View style={[
+              styles.searchContainer,
+              { opacity: searchBarOpacity, transform: [{ translateY: searchBarTranslateY }] }
+            ]}>
               <Feather name="search" size={18} color="#78716C" style={styles.searchIcon} />
               <TextInput
                 placeholder="Search your wardrobe..."
@@ -141,13 +203,16 @@ export default function ClosetScreen() {
                 value={searchQuery}
                 onChangeText={setSearchQuery}
               />
-              <TouchableOpacity style={styles.filterButton} activeOpacity={0.7}>
+              <PremiumTouchable style={styles.filterButton} onPress={() => console.log('Filter')}>
                 <MaterialCommunityIcons name="filter-variant" size={20} color="#1C1917" />
-              </TouchableOpacity>
-            </View>
+              </PremiumTouchable>
+            </Animated.View>
 
             {/* Horizontal Filter Row Layout */}
-            <View style={styles.categoryScroller}>
+            <Animated.View style={[
+              styles.categoryScroller,
+              { opacity: filtersOpacity, transform: [{ translateY: filtersTranslateY }] }
+            ]}>
               <FlatList
                 horizontal
                 data={CATEGORIES}
@@ -157,9 +222,8 @@ export default function ClosetScreen() {
                 renderItem={({ item }) => {
                   const isActive = activeCategory === item.id;
                   return (
-                    <TouchableOpacity
+                    <PremiumTouchable
                       onPress={() => setActiveCategory(item.id)}
-                      activeOpacity={0.8}
                       style={[
                         styles.categoryTab,
                         isActive ? styles.categoryTabActive : styles.categoryTabInactive,
@@ -179,12 +243,26 @@ export default function ClosetScreen() {
                       >
                         {item.label}
                       </Text>
-                    </TouchableOpacity>
+                    </PremiumTouchable>
                   );
                 }}
               />
-            </View>
+            </Animated.View>
           </View>
+        }
+        ListEmptyComponent={
+          <Animated.View style={[
+            styles.emptyStateContainer, 
+            { opacity: emptyOpacityAnim, transform: [{ scale: emptyScaleAnim }] }
+          ]}>
+            <View style={styles.emptyIconCircle}>
+              <MaterialCommunityIcons name="hanger" size={28} color="#78716C" />
+            </View>
+            <Text style={styles.emptyStateTitle}>No pieces match</Text>
+            <Text style={styles.emptyStateSubtitle}>
+              Try re-adjusting your active text queries or structural tags.
+            </Text>
+          </Animated.View>
         }
       />
     </PremiumScreen>
@@ -192,10 +270,6 @@ export default function ClosetScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FAFAF9',
-  },
   listContainer: {
     paddingHorizontal: 16,
     paddingBottom: 32,
@@ -310,7 +384,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F4',
     position: 'relative',
   },
-  garmentImage: {
+  imageGarmentImage: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
@@ -356,5 +430,32 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '500',
     color: '#78716C',
+  },
+  emptyStateContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 64,
+    paddingHorizontal: 32,
+  },
+  emptyIconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#F5F5F4',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  emptyStateTitle: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#1C1917',
+    marginBottom: 6,
+  },
+  emptyStateSubtitle: {
+    fontSize: 13,
+    color: '#78716C',
+    textAlign: 'center',
+    lineHeight: 18,
   },
 });

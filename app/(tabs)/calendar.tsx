@@ -4,13 +4,15 @@ import {
   Text,
   View,
   ScrollView,
-  TouchableOpacity,
   Image,
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { PremiumScreen } from '../../components/ui/PremiumScreen';
+import { PremiumCard } from '../../components/ui/PremiumCard';
+import { PremiumTouchable } from '../../components/ui/PremiumTouchable';
+import { PremiumButton } from '../../components/ui/PremiumButton';
 import { SectionHeader } from '../../components/ui/SectionHeader';
 import { SectionTitle } from '../../components/ui/SectionTitle';
 
@@ -18,30 +20,44 @@ const { width } = Dimensions.get('window');
 const CALENDAR_DAY_WIDTH = (width - 48 - 36) / 7; // Precise layout alignment for the 7-day grid system
 
 const DAYS_DATA = [
-  { id: '1', date: '20', label: 'Mon', active: true, planned: true },
-  { id: '2', date: '21', label: 'Tue', active: false, planned: true },
-  { id: '3', date: '22', label: 'Wed', active: false, planned: false },
-  { id: '4', date: '23', label: 'Thu', active: false, planned: true },
-  { id: '5', date: '24', label: 'Fri', active: false, planned: false },
-  { id: '6', date: '25', label: 'Sat', active: false, planned: false },
-  { id: '7', date: '26', label: 'Sun', active: false, planned: false },
+  { id: '1', date: '20', label: 'Mon', active: true, planned: true, fullDate: '2024-05-20', formattedDate: 'Monday, May 20' },
+  { id: '2', date: '21', label: 'Tue', active: false, planned: true, fullDate: '2024-05-21', formattedDate: 'Tuesday, May 21' },
+  { id: '3', date: '22', label: 'Wed', active: false, planned: false, fullDate: '2024-05-22', formattedDate: 'Wednesday, May 22' },
+  { id: '4', date: '23', label: 'Thu', active: false, planned: true, fullDate: '2024-05-23', formattedDate: 'Thursday, May 23' },
+  { id: '5', date: '24', label: 'Fri', active: false, planned: false, fullDate: '2024-05-24', formattedDate: 'Friday, May 24' },
+  { id: '6', date: '25', label: 'Sat', active: false, planned: false, fullDate: '2024-05-25', formattedDate: 'Saturday, May 25' },
+  { id: '7', date: '26', label: 'Sun', active: false, planned: false, fullDate: '2024-05-26', formattedDate: 'Sunday, May 26' },
 ];
 
-const OUTFIT_PLAN = {
+const OUTFIT_PLANS: Record<string, { outfit: string; image: string; occasion: string }> = {
   '2024-05-20': {
     outfit: 'Casual Monday',
     image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=300&h=400&fit=crop',
     occasion: 'Work',
   },
+  '2024-05-21': {
+    outfit: 'Office Ready',
+    image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=300&h=400&fit=crop',
+    occasion: 'Meeting',
+  },
+  '2024-05-23': {
+    outfit: 'Classic Denim',
+    image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=300&h=400&fit=crop',
+    occasion: 'Casual',
+  },
 };
 
 const UPCOMING_EVENTS = [
-  { id: '1', event: 'Product Launch Meeting', date: 'May 21, 2024', suggested: 'Office Ready' },
-  { id: '2', event: 'Friday Dinner Date', date: 'May 24, 2024', suggested: 'Weekend Vibes' },
+  { id: '1', event: 'Product Launch Meeting', date: 'May 21, 2024', suggested: 'Office Ready', icon: 'briefcase-outline' },
+  { id: '2', event: 'Friday Dinner Date', date: 'May 24, 2024', suggested: 'Weekend Vibes', icon: 'silverware-fork-knife' },
 ];
 
 export default function CalendarScreen() {
-  const [selectedDay, setSelectedDay] = useState('1');
+  const [selectedDayId, setSelectedDayId] = useState('1');
+
+  // Find metadata for current tracking slice
+  const activeDayMeta = DAYS_DATA.find((d) => d.id === selectedDayId) || DAYS_DATA[0];
+  const activePlan = OUTFIT_PLANS[activeDayMeta.fullDate];
 
   return (
     <PremiumScreen>
@@ -55,9 +71,9 @@ export default function CalendarScreen() {
               subtitle="May 2024"
               style={styles.headerFlexOverride}
             />
-            <TouchableOpacity style={styles.addButtonCircle} activeOpacity={0.8}>
+            <PremiumTouchable style={styles.addButtonCircle} onPress={() => console.log('Create Plan Press', activeDayMeta.fullDate)}>
               <Ionicons name="add" size={24} color="#FAFAF9" />
-            </TouchableOpacity>
+            </PremiumTouchable>
           </View>
 
           {/* Horizontal Weekly Navigator Row Grid */}
@@ -65,23 +81,22 @@ export default function CalendarScreen() {
             <View style={styles.stripHeader}>
               <SectionTitle>This Week</SectionTitle>
               <View style={styles.chevronControls}>
-                <TouchableOpacity style={styles.chevronInlineButton} activeOpacity={0.6}>
+                <PremiumTouchable style={styles.chevronInlineButton} onPress={() => console.log('Prev Week')}>
                   <Ionicons name="chevron-back" size={16} color="#1C1917" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.chevronInlineButton} activeOpacity={0.6}>
+                </PremiumTouchable>
+                <PremiumTouchable style={styles.chevronInlineButton} onPress={() => console.log('Next Week')}>
                   <Ionicons name="chevron-forward" size={16} color="#1C1917" />
-                </TouchableOpacity>
+                </PremiumTouchable>
               </View>
             </View>
 
             <View style={styles.daysRowLayout}>
               {DAYS_DATA.map((day) => {
-                const isSelected = selectedDay === day.id;
+                const isSelected = selectedDayId === day.id;
                 return (
-                  <TouchableOpacity
+                  <PremiumTouchable
                     key={day.id}
-                    onPress={() => setSelectedDay(day.id)}
-                    activeOpacity={0.8}
+                    onPress={() => setSelectedDayId(day.id)}
                     style={[
                       styles.dayGridCell,
                       isSelected ? styles.cellActive : styles.cellInactive,
@@ -96,7 +111,7 @@ export default function CalendarScreen() {
                     {day.planned && (
                       <View style={[styles.indicatorDot, isSelected ? styles.dotActive : styles.dotInactive]} />
                     )}
-                  </TouchableOpacity>
+                  </PremiumTouchable>
                 );
               })}
             </View>
@@ -107,31 +122,35 @@ export default function CalendarScreen() {
         <View style={styles.sectionContainer}>
           <SectionTitle withBottomMargin>Selected Outfit</SectionTitle>
           
-          {selectedDay === '1' ? (
-            <View style={styles.plannedOutfitCard}>
+          {activePlan ? (
+            <PremiumCard style={styles.plannedOutfitCard} onPress={() => console.log('View Outfit Deep Link', activePlan.outfit)}>
               <View style={styles.cardImageContainer}>
-                <Image source={{ uri: OUTFIT_PLAN['2024-05-20'].image }} style={styles.outfitCoverImage} />
+                <Image source={{ uri: activePlan.image }} style={styles.outfitCoverImage} />
               </View>
               <View style={styles.cardDetailsPane}>
                 <View style={styles.cardMetadataRow}>
-                  <Text style={styles.outfitTitleText}>{OUTFIT_PLAN['2024-05-20'].outfit}</Text>
+                  <Text style={styles.outfitTitleText} numberOfLines={1}>
+                    {activePlan.outfit}
+                  </Text>
                   <View style={styles.categoryBadge}>
-                    <Text style={styles.categoryBadgeText}>{OUTFIT_PLAN['2024-05-20'].occasion}</Text>
+                    <Text style={styles.categoryBadgeText}>{activePlan.occasion}</Text>
                   </View>
                 </View>
-                <Text style={styles.cardScheduleTimelineText}>Monday, May 20</Text>
+                <Text style={styles.cardScheduleTimelineText}>{activeDayMeta.formattedDate}</Text>
                 
-                <TouchableOpacity style={styles.inlineActionTextButton} activeOpacity={0.7}>
+                <PremiumTouchable style={styles.inlineActionTextButton} onPress={() => console.log('Modify Plan Press', activeDayMeta.fullDate)}>
                   <Text style={styles.actionButtonText}>Modify Plan</Text>
                   <Ionicons name="arrow-forward" size={14} color="#1C1917" style={styles.actionButtonIcon} />
-                </TouchableOpacity>
+                </PremiumTouchable>
               </View>
-            </View>
+            </PremiumCard>
           ) : (
             <View style={styles.emptyStateCardContainer}>
               <MaterialCommunityIcons name="calendar-blank" size={32} color="#78716C" style={styles.emptyStateIcon} />
               <Text style={styles.emptyStateHeading}>No outfit planned</Text>
-              <Text style={styles.emptyStateBodyText}>Tap the add button or assign a wardrobe look to this date slot</Text>
+              <Text style={styles.emptyStateBodyText}>
+                Tap the add button or assign a wardrobe look to {activeDayMeta.label}, {activeDayMeta.date}
+              </Text>
             </View>
           )}
         </View>
@@ -141,10 +160,14 @@ export default function CalendarScreen() {
           <SectionTitle withBottomMargin>Upcoming Events</SectionTitle>
           <View style={styles.eventsVerticalStackLayout}>
             {UPCOMING_EVENTS.map((event) => (
-              <View key={event.id} style={styles.eventRowCard}>
+              <PremiumCard 
+                key={event.id} 
+                style={styles.eventRowCard}
+                onPress={() => console.log(`Event Context: ${event.event}`)}
+              >
                 <View style={styles.eventRowLeftBlock}>
                   <View style={styles.eventAccentBoxContainer}>
-                    <MaterialCommunityIcons name="briefcase-outline" size={18} color="#1C1917" />
+                    <MaterialCommunityIcons name={event.icon as any} size={18} color="#1C1917" />
                   </View>
                   <View style={styles.eventMetaTextBlock}>
                     <Text style={styles.eventNameMainText} numberOfLines={1}>
@@ -156,7 +179,7 @@ export default function CalendarScreen() {
                 <View style={styles.suggestionTagBadge}>
                   <Text style={styles.suggestionTagText}>{event.suggested}</Text>
                 </View>
-              </View>
+              </PremiumCard>
             ))}
           </View>
         </View>
@@ -167,10 +190,6 @@ export default function CalendarScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FAFAF9',
-  },
   scrollLayout: {
     paddingHorizontal: 16,
     paddingBottom: 32,
@@ -288,6 +307,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E7E5E4',
     overflow: 'hidden',
+    padding: 0,
+    width: '100%',
   },
   cardImageContainer: {
     width: 100,
@@ -314,6 +335,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     color: '#1C1917',
+    flex: 1,
+    marginRight: 8,
   },
   categoryBadge: {
     borderWidth: 1,
@@ -336,6 +359,7 @@ const styles = StyleSheet.create({
   inlineActionTextButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: 2,
   },
   actionButtonText: {
     fontSize: 13,
@@ -384,6 +408,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     borderWidth: 1,
     borderColor: '#E7E5E4',
+    width: '100%',
   },
   eventRowLeftBlock: {
     flexDirection: 'row',

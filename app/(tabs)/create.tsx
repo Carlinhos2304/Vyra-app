@@ -5,20 +5,29 @@ import {
   View,
   ScrollView,
   TextInput,
-  TouchableOpacity,
   Image,
   Dimensions,
   FlatList,
+  LayoutAnimation,
+  Platform,
+  UIManager,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { PremiumScreen } from '../../components/ui/PremiumScreen';
+import { PremiumCard } from '../../components/ui/PremiumCard';
+import { PremiumTouchable } from '../../components/ui/PremiumTouchable';
+import { StaggeredListWrapper } from '../../constants/motion/StaggeredListWrapper';
 import { SectionHeader } from '../../components/ui/SectionHeader';
 import { SectionTitle } from '../../components/ui/SectionTitle';
 
-const { width } = Dimensions.get('window');
-const GRID_ITEM_WIDTH = (width - 44) / 2; // Precise 2-column mathematical grid calculation matching theme margins
+// Enable layout animations natively for Android target instances
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
-// Mock dataset directly based on the layout and arrays defined in the exported Figma AI component
+const { width } = Dimensions.get('window');
+const GRID_ITEM_WIDTH = (width - 44) / 2;
+
 const AVAILABLE_ITEMS = [
   {
     id: '1',
@@ -52,37 +61,48 @@ export default function CreateOutfitScreen() {
 
   const handleAddItem = (item: typeof AVAILABLE_ITEMS[0]) => {
     if (!selectedItems.some((selected) => selected.id === item.id)) {
+      // Direct high-performance layout mutation interpolation trigger
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setSelectedItems([...selectedItems, item]);
     }
   };
 
   const handleRemoveItem = (id: string) => {
+    // Structural micro-recalculation sequence update
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setSelectedItems(selectedItems.filter((item) => item.id !== id));
   };
 
-  const renderAvailableItem = ({ item }: { item: typeof AVAILABLE_ITEMS[0] }) => {
+  const renderAvailableItem = ({ item, index }: { item: typeof AVAILABLE_ITEMS[0]; index: number }) => {
     const isSelected = selectedItems.some((selected) => selected.id === item.id);
 
     return (
-      <TouchableOpacity
-        onPress={() => !isSelected && handleAddItem(item)}
-        activeOpacity={isSelected ? 1 : 0.8}
-        style={[styles.gridCard, isSelected && styles.gridCardDisabled]}
-      >
-        <View style={styles.gridImageContainer}>
-          <Image source={{ uri: item.image }} style={styles.gridCardImage} />
-          {!isSelected && (
-            <View style={styles.gridImageOverlay}>
-              <Ionicons name="add" size={24} color="#FFFFFF" />
-            </View>
-          )}
-        </View>
-        <View style={styles.gridCardFooter}>
-          <Text style={styles.gridCardName} numberOfLines={1}>
-            {item.name}
-          </Text>
-        </View>
-      </TouchableOpacity>
+      <StaggeredListWrapper index={index}>
+        <PremiumCard
+          onPress={isSelected ? () => handleRemoveItem(item.id) : () => handleAddItem(item)}
+          style={[styles.gridCard, isSelected && styles.gridCardSelected]}
+        >
+          <View style={styles.gridImageContainer}>
+            <Image source={{ uri: item.image }} style={styles.gridCardImage} />
+            {isSelected ? (
+              <View style={styles.gridImageOverlaySelected}>
+                <View style={styles.checkmarkCircle}>
+                  <Ionicons name="checkmark" size={16} color="#1C1917" />
+                </View>
+              </View>
+            ) : (
+              <View style={styles.gridImageOverlay}>
+                <Ionicons name="add" size={24} color="#FFFFFF" />
+              </View>
+            )}
+          </View>
+          <View style={styles.gridCardFooter}>
+            <Text style={styles.gridCardName} numberOfLines={1}>
+              {item.name}
+            </Text>
+          </View>
+        </PremiumCard>
+      </StaggeredListWrapper>
     );
   };
 
@@ -96,21 +116,22 @@ export default function CreateOutfitScreen() {
         columnWrapperStyle={styles.gridRow}
         contentContainerStyle={styles.scrollPadding}
         showsVerticalScrollIndicator={false}
+        extraData={selectedItems}
         ListHeaderComponent={
           <View style={styles.headerBlock}>
-            {/* Screen Header level with custom structural header block */}
+            {/* Screen Header Layout Block */}
             <View style={styles.topBar}>
               <SectionHeader
                 title="Create Outfit"
                 subtitle="Mix & match items from your wardrobe"
                 style={styles.headerFlexOverride}
               />
-              <TouchableOpacity style={styles.saveActionCircle} activeOpacity={0.8}>
+              <PremiumTouchable style={styles.saveActionCircle} onPress={() => console.log('Save Outfit Layout', { name: outfitName, items: selectedItems })}>
                 <Ionicons name="save-outline" size={20} color="#FAFAF9" />
-              </TouchableOpacity>
+              </PremiumTouchable>
             </View>
 
-            {/* Canvas Input Controller framework */}
+            {/* Canvas Input Controller Framework */}
             <View style={styles.formSection}>
               <SectionTitle withBottomMargin>Outfit Details</SectionTitle>
               <TextInput
@@ -145,13 +166,12 @@ export default function CreateOutfitScreen() {
                   {selectedItems.map((item) => (
                     <View key={item.id} style={styles.previewCanvasCard}>
                       <Image source={{ uri: item.image }} style={styles.canvasCardImage} />
-                      <TouchableOpacity
+                      <PremiumTouchable
                         style={styles.removeBadgeButton}
                         onPress={() => handleRemoveItem(item.id)}
-                        activeOpacity={0.7}
                       >
                         <Ionicons name="close-circle" size={20} color="#1C1917" />
-                      </TouchableOpacity>
+                      </PremiumTouchable>
                       <View style={styles.canvasCardLabelContainer}>
                         <Text style={styles.canvasCardNameText} numberOfLines={1}>
                           {item.name}
@@ -175,10 +195,6 @@ export default function CreateOutfitScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FAFAF9',
-  },
   scrollPadding: {
     paddingHorizontal: 16,
     paddingBottom: 32,
@@ -264,6 +280,8 @@ const styles = StyleSheet.create({
   canvasHorizontalTrack: {
     gap: 12,
     paddingRight: 16,
+    paddingVertical: 6,
+    alignItems: 'center',
   },
   previewCanvasCard: {
     width: 90,
@@ -307,14 +325,16 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#F5F5F4',
+    padding: 0,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03,
     shadowRadius: 2,
     elevation: 1,
   },
-  gridCardDisabled: {
-    opacity: 0.4,
+  gridCardSelected: {
+    borderColor: '#1C1917',
+    backgroundColor: '#FAFAF9',
   },
   gridImageContainer: {
     width: '100%',
@@ -329,10 +349,36 @@ const styles = StyleSheet.create({
   },
   gridImageOverlay: {
     position: 'absolute',
-    inset: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.02)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  gridImageOverlaySelected: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(28, 25, 23, 0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkmarkCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#FAFAF9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
   gridCardFooter: {
     padding: 10,

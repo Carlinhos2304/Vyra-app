@@ -2,29 +2,35 @@ import React from 'react';
 import { Animated, Pressable, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { usePremiumPress } from '../../hooks/animation/usePremiumPress';
 
-interface PremiumCardProps {
+interface PremiumTouchableProps {
   children: React.ReactNode;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
+  disabled?: boolean;
+  activeOpacity?: number; // Maintained for API compatibility with legacy touches
 }
 
-export const PremiumCard: React.FC<PremiumCardProps> = ({ children, onPress, style }) => {
+export const PremiumTouchable: React.FC<PremiumTouchableProps> = ({
+  children,
+  onPress,
+  style,
+  disabled = false,
+}) => {
   const { pressProps, animatedStyle } = usePremiumPress();
-  const hasAction = typeof onPress === 'function';
 
   return (
     <Pressable 
       onPress={onPress} 
-      disabled={!hasAction}
-      style={styles.containerReset}
+      disabled={disabled}
+      style={styles.pressableReset}
     >
       <Animated.View 
         style={[
-          styles.cardBase, 
           style, 
-          hasAction && animatedStyle
+          !disabled && animatedStyle,
+          disabled && styles.disabledOpacity
         ]}
-        {...(hasAction ? pressProps : {})}
+        {...(!disabled ? pressProps : {})}
       >
         {children}
       </Animated.View>
@@ -33,14 +39,10 @@ export const PremiumCard: React.FC<PremiumCardProps> = ({ children, onPress, sty
 };
 
 const styles = StyleSheet.create({
-  containerReset: {
-    width: '100%',
+  pressableReset: {
+    backgroundColor: 'transparent',
   },
-  cardBase: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#E7E5E4',
-    overflow: 'hidden',
+  disabledOpacity: {
+    opacity: 0.4,
   },
 });

@@ -1,45 +1,66 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import { StyleSheet, Text, Animated, Pressable, ViewStyle, StyleProp } from 'react-native';
+import { colors, spacing } from '../../constants/theme';
+import { usePremiumPress } from '../../hooks/animation/usePremiumPress';
 
-interface PremiumButtonProps extends TouchableOpacityProps {
+interface PremiumButtonProps {
   label: string;
   onPress: () => void;
+  style?: StyleProp<ViewStyle>;
+  disabled?: boolean;
+  isLoading?: boolean;
 }
 
-/**
- * PremiumButton - The primary action button extracted exactly from the login layout.
- * Retains original tap-opacity interaction metrics, geometry, and tracking.
- */
 export const PremiumButton: React.FC<PremiumButtonProps> = ({
   label,
   onPress,
   style,
-  ...props
+  disabled = false,
+  isLoading = false,
 }) => {
+  const { pressProps, animatedStyle } = usePremiumPress();
+  const isInteractive = !disabled && !isLoading;
+
   return (
-    <TouchableOpacity
-      style={[styles.signInButton, style]}
-      activeOpacity={0.8}
-      onPress={onPress}
-      {...props}
+    <Pressable 
+      onPress={onPress} 
+      disabled={!isInteractive}
+      style={styles.pressableReset}
     >
-      <Text style={styles.signInButtonText}>{label}</Text>
-    </TouchableOpacity>
+      <Animated.View
+        style={[
+          styles.buttonBody,
+          style,
+          isInteractive && animatedStyle,
+          (disabled || isLoading) && styles.disabledState,
+        ]}
+        {...(isInteractive ? pressProps : {})}
+      >
+        <Text style={styles.buttonLabel}>{label}</Text>
+      </Animated.View>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
-  signInButton: {
+  pressableReset: {
+    width: '100%',
+  },
+  buttonBody: {
     height: 52,
-    backgroundColor: '#1C1A17',
-    borderRadius: 26,
+    backgroundColor: '#1C1917', // Primary Brand Onyx
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 24,
+    width: '100%',
   },
-  signInButtonText: {
-    color: '#FFFFFF',
+  buttonLabel: {
+    color: '#FAFAF9', // Alabaster text token
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '500',
+    letterSpacing: 0.3,
+  },
+  disabledState: {
+    opacity: 0.5,
   },
 });
